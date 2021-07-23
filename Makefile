@@ -1,26 +1,34 @@
 #!/usr/bin/env make
 
-GENGEN_C ?= /opt/homebrew/Cellar/halide/12.0.1/share/tools
+HALIDE_T ?= /opt/homebrew/Cellar/halide/12.0.1/share/tools
 HALIDE_I ?= /opt/homebrew/Cellar/halide/12.0.1/include
 HALIDE_L ?= /opt/homebrew/Cellar/halide/12.0.1/lib
-HALIDE_LIB ?= $(HALIDE_L)/libHalide.dylib
 CFLAGS ?= -g -O0 -std=c++17
 
-.PHONY: all clean
+.PHONY: run clean
 
-all: vadd.generator
+tutorial: tutorial.cpp
+	c++ $(CFLAGS) -I $(HALIDE_I) -L $(HALIDE_L) -lHalide -o $@ $<
 
-vadd.generator: GenGen.o vadd_generator.o
-	c++ $(CFLAGS) -o $@ -isystem $(HALIDE_I) -Wl,-rpath,$(HALIDE_L) $(HALIDE_LIB) $<
+run: tutorial
+	DYLD_LIBRARY_PATH=$(HALIDE_L) ./$@
 
-vadd_generator.o: vadd_generator.cpp
-	c++ $(CFLAGS) -o $@ -c -isystem $(HALIDE_I) $<
 
-GenGen.o:
-	c++ $(CFLAGS) $(GENGEN_C)/GenGen.cpp -o $@ -c -isystem $(HALIDE_I)
 
-clean:
-	rm -f *.o *.a *.generator
+
+# all: vadd.generator
+
+# vadd.generator: GenGen.o vadd_generator.o
+# 	c++ $(CFLAGS) -o $@ -isystem $(HALIDE_I) -Wl,-search_paths_first -Wl,-headerpad_max_install_names -Wl,-rpath,$(HALIDE_L) $(HALIDE_LIB) $< 
+
+# vadd_generator.o: vadd_generator.cpp
+# 	c++ $(CFLAGS) -o $@ -c -isystem $(HALIDE_I) $<
+
+# GenGen.o: $(HALIDE_T)/GenGen.cpp
+# 	c++ $(CFLAGS)  -o $@ -c -isystem $(HALIDE_I) $<
+
+# clean:
+# 	rm -f *.o *.a *.generator
 
 # /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ \
 #     -DHALIDE_ENABLE_RTTI -DHALIDE_WITH_EXCEPTIONS \
