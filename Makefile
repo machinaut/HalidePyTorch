@@ -8,10 +8,10 @@ CFLAGS ?= -g -O0 -std=c++17
 .PHONY: run clean
 
 tutorial: tutorial.cpp
-	c++ $(CFLAGS) -I $(HALIDE_I) -L $(HALIDE_L) -lHalide -o $@ $<
+	c++ $(CFLAGS) -I $(HALIDE_I) -L $(HALIDE_L) -lHalide -o $@ $^
 
 run: tutorial
-	DYLD_LIBRARY_PATH=$(HALIDE_L) ./$@
+	DYLD_LIBRARY_PATH=$(HALIDE_L) ./$<
 
 
 

@@ -132,3 +132,5 @@ dmypy.json
 *.o
 *.a
 *.generator
+*.dSYM
+tutorial
