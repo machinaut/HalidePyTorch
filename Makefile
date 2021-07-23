@@ -6,6 +6,8 @@ HALIDE_L ?= /opt/homebrew/Cellar/halide/12.0.1/lib
 HALIDE_LIB ?= $(HALIDE_L)/libHalide.dylib
 CFLAGS ?= -g -O0 -std=c++17
 
+PHONY: clean
+
 vadd.generator: GenGen.o vadd_generator.o
 	c++ $(CFLAGS) -o $@ -isystem $(HALIDE_I) -Wl,-rpath,$(HALIDE_L) $(HALIDE_LIB) $<
 
@@ -15,6 +17,8 @@ vadd_generator.o: vadd_generator.cpp
 GenGen.o:
 	c++ $(CFLAGS) $(GENGEN_C)/GenGen.cpp -o $@ -c -isystem $(HALIDE_I)
 
+clean:
+	rm -f *.o *.a *.generator
 
 # /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ \
 #     -DHALIDE_ENABLE_RTTI -DHALIDE_WITH_EXCEPTIONS \
