@@ -6,7 +6,7 @@ HALIDE_L ?= /opt/homebrew/Cellar/halide/12.0.1/lib
 HALIDE_LIB ?= $(HALIDE_L)/libHalide.dylib
 CFLAGS ?= -g -O0 -std=c++17
 
-PHONY: all clean
+.PHONY: all clean
 
 all: vadd.generator
 
