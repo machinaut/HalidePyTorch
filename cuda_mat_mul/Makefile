@@ -2,7 +2,7 @@
 
 MATRIX_SIZE ?= 1024
 
-CUDA_SDK ?= /usr/local/cuda-11.4
+CUDA_SDK ?= /usr/local/cuda
 HALIDE_SDK ?= /home/aray/Halide-12.0.1-x86-64-linux
 HALIDE_TOOLS ?= $(HALIDE_SDK)/share/Halide/tools/
 
