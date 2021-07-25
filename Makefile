@@ -1,4 +1,4 @@
-include ../support/Makefile.inc
+include Makefile.inc
 
 OPS = $(BIN)/$(HL_TARGET)/add_float32.a \
       $(BIN)/$(HL_TARGET)/add_float64.a \
