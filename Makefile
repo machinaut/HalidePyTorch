@@ -7,11 +7,14 @@ CFLAGS ?= -g -O0 -std=c++17
 
 .PHONY: run clean
 
-tutorial: tutorial.cpp
+tutorial: tutorial.cpp $(HALIDE_T)/GenGen.cpp
 	c++ $(CFLAGS) -I $(HALIDE_I) -L $(HALIDE_L) -lHalide -o $@ $^
 
 run: tutorial
 	DYLD_LIBRARY_PATH=$(HALIDE_L) ./$<
+
+# // g++ lesson_15*.cpp <path/to/tools/halide_image_io.h>/GenGen.cpp -g -std=c++17 -fno-rtti -I <path/to/Halide.h> -L <path/to/libHalide.so> -lHalide -o lesson_15_generate
+# // bash lesson_15_generators_usage.sh
 
 
 
