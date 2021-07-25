@@ -1,0 +1,23 @@
+
+Fatbin elf code:
+================
+arch = sm_70
+code version = [1,7]
+producer = <unknown>
+host = linux
+compile_size = 64bit
+
+Resource usage:
+ Common:
+  GLOBAL:0
+ Function vectorAdd(float const*, float const*, float*, int):
+  REG:12 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:380 TEXTURE:0 SURFACE:0 SAMPLER:0
+
+Fatbin ptx code:
+================
+arch = sm_70
+code version = [7,4]
+producer = <unknown>
+host = linux
+compile_size = 64bit
+compressed

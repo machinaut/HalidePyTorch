@@ -1,0 +1,17 @@
+
+Fatbin elf code:
+================
+arch = sm_70
+code version = [1,7]
+producer = <unknown>
+host = linux
+compile_size = 64bit
+
+Fatbin ptx code:
+================
+arch = sm_70
+code version = [7,4]
+producer = <unknown>
+host = linux
+compile_size = 64bit
+compressed

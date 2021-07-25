@@ -1,0 +1,20 @@
+
+Fatbin elf code:
+================
+arch = sm_70
+code version = [1,7]
+producer = <unknown>
+host = linux
+compile_size = 64bit
+
+symbols:
+STT_FUNC         STB_GLOBAL STO_ENTRY      vectorAdd(float const*, float const*, float*, int)
+
+Fatbin ptx code:
+================
+arch = sm_70
+code version = [7,4]
+producer = <unknown>
+host = linux
+compile_size = 64bit
+compressed
