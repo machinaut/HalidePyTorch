@@ -2,11 +2,11 @@ from setuptools import setup
 from torch.utils.cpp_extension import BuildExtension, CUDAExtension
 
 setup(
-    name='vadd_cuda',
+    name='vadd',
     ext_modules=[
-        CUDAExtension('vadd_cuda', [
-            'vadd_cuda.cpp',
-            'vadd_cuda_kernel.cu',
+        CUDAExtension('vadd', [
+            'vadd.cpp',
+            'vadd_kernel.cu',
         ]),
     ],
     cmdclass={
