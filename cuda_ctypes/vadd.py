@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import torch
-from ctypes import CDLL
+from ctypes import CDLL, c_void_p
 import time
 
 vadd = CDLL("./vadd.so")
@@ -14,9 +14,9 @@ threads = 4
 
 C = A * 99 + B * 99
 
-Ap = A.data_ptr()
-Bp = B.data_ptr()
-Cp = C.data_ptr()
+Ap = c_void_p(A.data_ptr())
+Bp = c_void_p(B.data_ptr())
+Cp = c_void_p(C.data_ptr())
 print('Ap', hex(Ap), 'Bp', hex(Bp), 'Cp', hex(Cp))
 
 print('BEFORE')
