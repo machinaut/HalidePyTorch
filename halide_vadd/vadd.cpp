@@ -1,17 +1,26 @@
-#include "Halide.h"
+#include <stdio.h>
+#include "HalideBuffer.h"
+#include "vadd.h"
 
 using namespace Halide;
 
-class VAdd : public Generator<VAdd> {
-public:
-    Input<Buffer<float>> a{"a", 1};
-    Input<Buffer<float>> b{"b", 1};
-    Output<Buffer<float>> c{"c", 1};
+void halide_register_argv_and_metadata(
+    int (*filter_argv_call)(void **),
+    const struct halide_filter_metadata_t *filter_metadata,
+    const char *const *extra_key_value_pairs) {}
 
-    void generate() {
-        Var x;
-        c(x) = a(x) + b(x);
+int main(void)
+{
+    Halide::Runtime::Buffer<float> a(12345), b(12345), c(12345);
+
+    int error = vadd(a, b, c);
+
+    if (error)
+    {
+        printf("Halide returned an error: %d\n", error);
+        return -1;
     }
-};
 
-HALIDE_REGISTER_GENERATOR(VAdd, vadd);
+    printf("Success\n");
+    return 0;
+}
