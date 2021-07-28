@@ -11,14 +11,16 @@ void halide_register_argv_and_metadata(
 
 int main(void)
 {
-    Halide::Runtime::Buffer<float> a(12345), b(12345), c(12345);
+    Halide::Runtime::Buffer<float> a(123456789), b(123456789), c(123456789);
 
-    int error = vadd(a, b, c);
+    for (int i = 0; i < 10; i++) {
+        int error = vadd(a, b, c);
 
-    if (error)
-    {
-        printf("Halide returned an error: %d\n", error);
-        return -1;
+        if (error)
+        {
+            printf("Halide returned an error: %d\n", error);
+            return -1;
+        }
     }
 
     printf("Success\n");

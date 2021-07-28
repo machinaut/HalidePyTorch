@@ -8,7 +8,9 @@
 
 // .globl	_add
 
+// export the symbol
 .visible .entry _add(
+	// parameters are accessible via ld.param and st.param
 	.param .u64 _add_param_0,
 	.param .u64 _add_param_1,
 	.param .u64 _add_param_2,
@@ -16,17 +18,28 @@
 )
 .maxntid 128, 1, 1
 {
-	.reg .pred 	%p<5>;
-	.reg .f32 	%f<25>;
-	.reg .b32 	%r<23>;
-	.reg .b64 	%rd<10>;
+	// 32-bit register storage locations
+	// excess will spill into memory
+	// For each arch, there is a recommended max number of registers to use
+	// Table 15 in the CUDA Programming Guide
+	// For example, for sm_70:
+	// Max registers per block: 64K
+	// Max registers per thread: 255
+	.reg .pred 	%p<5>;  // 1-bit predicate, false if zero, true otherwise
+	.reg .f32 	%f<25>;  // 32-bit floating point
+	.reg .b32 	%r<23>;  // 32 bits (untyped)
+	.reg .b64 	%rd<10>;  // 64 bits (untyped)
 
+	// load values from addresses passed in as parameters
+	// apparently they contain addresses of those values?
+	// we have to load from those addresses to get the values,
+	// which are themselves addresses (pointers) to the vectors
 	ld.param.u64 	%rd5, [_add_param_0];
 	ld.param.u64 	%rd6, [_add_param_1];
-	mov.u32 	%r17, %tid.x;
 	ld.param.u64 	%rd7, [_add_param_2];
 	ld.param.u32 	%r18, [_add_param_3];
 
+	mov.u32 	%r17, %tid.x;
 	shl.b32 	%r19, %r17, 2;
 	mov.u32 	%r20, %ctaid.x;
 	mad.lo.s32 	%r21, %r20, 1024, %r19;
@@ -72,9 +85,10 @@
 	add.f32 	%f24, %f8, %f16;
     // compute target location
 	add.s64 	%rd9, %rd7, %rd8;
+	// save results
 	st.global.v4.f32 	[%rd9], {%f17, %f18, %f19, %f20};
 	st.global.v4.f32 	[%rd9+2048], {%f21, %f22, %f23, %f24};
+	// return
 	ret;
-
 }
 
