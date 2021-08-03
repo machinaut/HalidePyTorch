@@ -13,27 +13,28 @@
 #endif
 
 #define BLOCK_SIZE (THREADS * VECTORIZE * UNROLL)
+#define INNER_SIZE (THREADS * VECTORIZE)
 
 namespace
 {
-    __global__ void vadd(const float *A, const float *B, float *C, int n)
+    __global__ void _vadd(const float *A, const float *B, float *C, int n)
     {
-        int i = blockDim.x * blockIdx.x + threadIdx.x;
+        const int start = BLOCK_SIZE * blockIdx.x + VECTORIZE * threadIdx.x;
         for (int j = 0; j < UNROLL; j++)
         {
+            const int sub = start + j * INNER_SIZE;
             for (int k = 0; k < VECTORIZE; k++)
             {
+                const int i = sub + k;
                 if (i >= n)
                     return;
                 C[i] = A[i] + B[i];
-                i++;
             }
-            i += BLOCK_SIZE;
         }
     }
 }
 
-extern "C" void vadd(const float *A, const float *B, float *C, int n);
+extern "C" void vadd(const float *A, const float *B, float *C, int n)
 {
     const int blocks = (n + BLOCK_SIZE - 1) / BLOCK_SIZE;
     _vadd<<<blocks, THREADS>>>(A, B, C, n);

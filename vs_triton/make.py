@@ -14,4 +14,48 @@ vadd.o: vadd.cu
 clean:
 	rm -f *.o *.so
 '''
+# %%
+import os
+import sys
+import subprocess
+from itertools import product
+from multiprocessing import Pool
+from tqdm.notebook import tqdm
 
+out_dir = '/tmp/vadd/'
+os.makedirs(out_dir, exist_ok=True)
+
+this_dir = os.path.dirname(os.path.realpath(__file__))
+
+
+def compile(args):
+	threads, vectorize, unroll = args
+	out = os.path.join(out_dir, f"vadd_{threads}_{vectorize}_{unroll}.so")
+	if os.path.exists(out):
+		os.remove(out)
+	src = os.path.join(this_dir, 'vadd.cu')
+
+	cmd = "/usr/local/cuda/bin/nvcc"
+	cmd += f" -DTHREADS={threads}"
+	cmd += f" -DVECTORIZE={vectorize}"
+	cmd += f" -DUNROLL={unroll}"
+	cmd += " -I/usr/local/cuda/include"
+	cmd += " -arch=sm_86 --compiler-options '-fPIC'"
+	cmd += f" {src} -shared -lcuda -o {out}"
+	print(cmd)
+	subprocess.check_call(cmd, shell=True)
+
+
+# thread_range = [32]
+# vectorize_range = [8]
+# unroll_range = [8]
+thread_range = [32, 64, 128, 256, 512, 1024]
+vectorize_range = [1, 2, 3, 4, 8, 16, 32]
+unroll_range = [1, 2, 3, 4, 8, 16, 32]
+
+# multi-threaded
+with Pool(32) as p:
+	p.map(compile, product(thread_range, vectorize_range, unroll_range))
+print('done')
+
+# %%
