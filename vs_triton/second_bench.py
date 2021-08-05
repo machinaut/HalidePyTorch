@@ -15,16 +15,7 @@ import triton.language as tl
 from itertools import product
 
 # %%
-vadds = {}
-for file in glob.glob('/tmp/vadd/vadd_*.so'):
-    # unpack f'/tmp/vadd/vadd_{threads}_{vectorize}_{unroll}.so'
-    groups = re.search(r'vadd_(?P<threads>\d+)_(?P<vectorize>\d+)_(?P<unroll>\d+)\.so', file)
-    assert groups, f'{file}'
-    threads = int(groups.group('threads'))
-    vectorize = int(groups.group('vectorize'))
-    unroll = int(groups.group('unroll'))
-    vadds[(threads, vectorize, unroll)] = CDLL(file)
-len(vadds)
+vadd = CDLL(os.path.join(os.path.dirname(__file__), 'vadd.so'))
 
 # %%
 @triton.jit
@@ -65,7 +56,7 @@ def add(x, y):
     return z
 
 # %%
-def add_cuda(x, y, tup):
+def add_cuda(x, y):
     z = torch.empty_like(x)
     N = z.shape[0]
     # Get pointers to the data
@@ -73,7 +64,7 @@ def add_cuda(x, y, tup):
     yp = c_void_p(y.data_ptr())
     zp = c_void_p(z.data_ptr())
     # Run the cuda kernel
-    vadds[tup].vadd(xp, yp, zp, N)
+    vadd.vadd(xp, yp, zp, N)
     # max_diff = torch.max(torch.abs(z - (x + y)))
     # if max_diff != 0.0:
     #     # print the indexes that are different
@@ -87,15 +78,14 @@ def add_cuda(x, y, tup):
     return z
 
 
-for tup in sorted(vadds.keys()):
-    torch.manual_seed(hash(tup))
-    size = 4096
-    x = torch.rand(size, device='cuda', dtype=torch.float32)
-    y = torch.rand(size, device='cuda', dtype=torch.float32)
-    za = x + y
-    zb = add_cuda(x, y, tup)
-    max_diff = torch.max(torch.abs(za - zb))
-    assert max_diff == 0.0, f'Max diff: {max_diff}, {tup}'
+torch.manual_seed(hash(0))
+size = 4096
+x = torch.rand(size, device='cuda', dtype=torch.float32)
+y = torch.rand(size, device='cuda', dtype=torch.float32)
+za = x + y
+zb = add_cuda(x, y)
+max_diff = torch.max(torch.abs(za - zb))
+assert max_diff == 0.0, f'Max diff: {max_diff}'
 
 # # %%
 # # triton PTX
@@ -165,7 +155,7 @@ for tup in sorted(vadds.keys()):
 # Torch wins on sizes: 8092, 32668, 1048476
 # Both win on sizes: 65436, 524188, 130972, 2097052
 # %%
-cuda_names = [f'cuda_{a}_{b}_{c}' for a,b,c in sorted(vadds.keys())]
+cuda_names = [f'cuda']
 all_names = ['triton', 'torch'] + cuda_names
 
 
@@ -180,7 +170,7 @@ names = all_names[::-1]
 @triton.testing.perf_report(
     triton.testing.Benchmark(
         x_names=['size'],  # argument names to use as an x-axis for the plot
-        x_vals=[2**i - 100 for i in range(12, 28, 1)],  # different possible values for `x_name`
+        x_vals=[2**i for i in range(12, 28, 1)],  # different possible values for `x_name`
         x_log=True,  # x axis is logarithmic
         line_arg='provider',  # argument name whose value corresponds to a different line in the plot
         line_vals=names,  # possible values for `line_arg`
@@ -198,15 +188,13 @@ def benchmark(size, provider):
     if provider == 'triton':
         ms, min_ms, max_ms = triton.testing.do_bench(lambda: add(x, y))
     if provider.startswith('cuda'):
-        _, threads, vectorize, unroll = provider.split('_')
-        fn = lambda: add_cuda(x, y, (int(threads), int(vectorize), int(unroll)))
-        ms, min_ms, max_ms = triton.testing.do_bench(fn)
+        ms, min_ms, max_ms = triton.testing.do_bench(lambda: add_cuda(x, y))
     gbps = lambda ms: 12 * size / ms * 1e-6
     return gbps(ms), gbps(max_ms), gbps(min_ms)
 
 
 print('starting benchmark')
 start = time.time()
-benchmark.run(save_path=save_path, show_plots=False, print_data=False)
+benchmark.run(save_path=save_path, show_plots=True, print_data=True)
 elapsed = time.time() - start
 print('done in', elapsed, 'seconds')

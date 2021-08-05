@@ -17,6 +17,7 @@ clean:
 # %%
 import os
 import sys
+import glob
 import subprocess
 from itertools import product
 from multiprocessing import Pool
@@ -27,6 +28,9 @@ os.makedirs(out_dir, exist_ok=True)
 
 this_dir = os.path.dirname(os.path.realpath(__file__))
 
+# Remove all the files in the output directory
+for f in glob.glob(os.path.join(out_dir, '*.so')):
+	os.remove(f)
 
 def compile(args):
 	threads, vectorize, unroll = args
@@ -50,8 +54,8 @@ def compile(args):
 # vectorize_range = [8]
 # unroll_range = [8]
 thread_range = [32, 64, 128, 256, 512, 1024]
-vectorize_range = [1, 2, 3, 4, 8, 16, 32]
-unroll_range = [1, 2, 3, 4, 8, 16, 32]
+vectorize_range = [1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64]
+unroll_range = [1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64]
 
 # multi-threaded
 with Pool(32) as p:
